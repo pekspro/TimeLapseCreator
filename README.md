@@ -14,6 +14,7 @@ work on other platforms. Probably just some paths need to be adjusted.
 [ffmpeg](https://ffmpeg.org/) is an open source tool. You need to download this
 and copy **ffmpeg.exe** to the output directory of the project.
 
-<video controls poster="./media/thumbnail.png">
-  <source src="./media/sample.mp4" type="video/mp4">
-</video>
+Navigate to the **media** directory in the source to see an rendered movie.
+
+![Thumbnail image](./media/thumbnail.png "Thumbnail image")
+
