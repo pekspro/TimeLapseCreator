@@ -200,7 +200,7 @@ namespace TimeLapseCreator
                     if (audioFadeOutDuration > 0)
                     {
                         //Assume we fade out to last second.
-                        audioEffectList.Add($"afade=out:start_time={(vidLengthCalc.TotalSeconds - audioFadeOutDuration).ToString("0.000", NumberFormatInfo.InvariantInfo)}s:duration={audioFadeInDuration.ToString("0.000", NumberFormatInfo.InvariantInfo)}s");
+                        audioEffectList.Add($"afade=out:start_time={(vidLengthCalc.TotalSeconds - audioFadeOutDuration).ToString("0.000", NumberFormatInfo.InvariantInfo)}s:duration={audioFadeOutDuration.ToString("0.000", NumberFormatInfo.InvariantInfo)}s");
                     }
 
                     string audioFilterString = string.Join(',', audioEffectList);
