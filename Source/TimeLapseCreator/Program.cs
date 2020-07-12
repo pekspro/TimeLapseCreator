@@ -106,7 +106,7 @@ namespace TimeLapseCreator
             Stopwatch renderStopWatch = Stopwatch.StartNew();
 
             // Render the video
-            await CreateVideoAsync(FramesPerSecond, images,
+            await RenderVideoAsync(FramesPerSecond, images,
                 Path.Combine(FFmpgPath, "ffmpeg.exe"),
                 audioPath,
                 thumbnailImagePath,
@@ -121,7 +121,7 @@ namespace TimeLapseCreator
         }
 
         // Render video from a list of images, add background audio and a thumbnail image.
-        private async Task CreateVideoAsync(int framesPerSecond, List<string> images, string ffmpgPath,
+        private async Task RenderVideoAsync(int framesPerSecond, List<string> images, string ffmpgPath,
                 string audioPath, string thumbnailImagePath, string outPath,
                 double audioFadeInDuration = 0, double audioFadeOutDuration = 0)
         {
