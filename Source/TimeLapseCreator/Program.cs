@@ -123,6 +123,7 @@ namespace TimeLapseCreator
         // Render video from a list of images, add background audio and a thumbnail image.
         private async Task RenderVideoAsync(int framesPerSecond, List<string> images, string ffmpgPath,
                 string audioPath, string thumbnailImagePath, string outPath,
+                double videoFadeInDuration = 0, double videoFadeOutDuration = 0,
                 double audioFadeInDuration = 0, double audioFadeOutDuration = 0)
         {
             string fileListName = Path.Combine(OutputPath, "framelist.txt");
@@ -142,6 +143,26 @@ namespace TimeLapseCreator
             inputParameters.Append($"-r {framesPerSecond} -f concat -safe 0 -i {fileListName} ");
 
             outputParameters.Append($"-map {framesId} ");
+
+            if(videoFadeInDuration > 0 || videoFadeOutDuration > 0)
+            {
+                List<string> videoFilterList = new List<string>();
+                if (videoFadeInDuration > 0)
+                {
+                    //Assume we fade in from first second.
+                    videoFilterList.Add($"fade=in:start_time={0}s:duration={videoFadeInDuration.ToString("0", NumberFormatInfo.InvariantInfo)}s");
+                }
+
+                if (videoFadeOutDuration > 0)
+                {
+                    //Assume we fade out to last second.
+                    videoFilterList.Add($"fade=out:start_time={(vidLengthCalc.TotalSeconds - videoFadeOutDuration).ToString("0.000", NumberFormatInfo.InvariantInfo)}s:duration={videoFadeOutDuration.ToString("0.000", NumberFormatInfo.InvariantInfo)}s");
+                }
+
+                string videoFilterString = string.Join(',', videoFilterList);
+
+                outputParameters.Append($"-filter:v:{framesId} \"{videoFilterString}\" ");
+            }
 
             if (thumbnailImagePath != null)
             {
@@ -176,7 +197,7 @@ namespace TimeLapseCreator
                         audioEffectList.Add($"afade=in:start_time={0}s:duration={audioFadeInDuration.ToString("0", NumberFormatInfo.InvariantInfo)}s");
                     }
 
-                    if (audioFadeInDuration > 0)
+                    if (audioFadeOutDuration > 0)
                     {
                         //Assume we fade out to last second.
                         audioEffectList.Add($"afade=out:start_time={(vidLengthCalc.TotalSeconds - audioFadeOutDuration).ToString("0.000", NumberFormatInfo.InvariantInfo)}s:duration={audioFadeInDuration.ToString("0.000", NumberFormatInfo.InvariantInfo)}s");
@@ -184,7 +205,7 @@ namespace TimeLapseCreator
 
                     string audioFilterString = string.Join(',', audioEffectList);
 
-                    outputParameters.Append($"-af \"{audioFilterString}\" ");
+                    outputParameters.Append($"-filter:a \"{audioFilterString}\" ");
                 }
             }
 
