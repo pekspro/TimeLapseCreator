@@ -172,7 +172,13 @@ namespace TimeLapseCreator
                 inputParameters.Append($"-i {thumbnailImagePath} ");
 
                 outputParameters.Append($"-map {coverId} ");
-                outputParameters.Append($"-c:v:{coverId} copy -disposition:v:{coverId} attached_pic ");
+             
+                // Normally the thumbnail image could just be added as it is.
+                outputParameters.Append($"-c:v:{coverId} copy ");
+                // But if you are using VP9, you need to convert the thumbnail.
+                // outputParameters.Append($"-c:v:{coverId} libvpx ");
+                
+                outputParameters.Append($"-disposition:v:{coverId} attached_pic ");
             }
 
             if (audioPath != null)
@@ -187,6 +193,9 @@ namespace TimeLapseCreator
                 {
                     // If no audio fading, just copy as it is.
                     outputParameters.Append($"-c:a copy ");
+
+                    // Note that if you are creating a VP9 movie, the audio might need to be converted.
+                    // Often it best not to use this option and let ffmpeg find the best option.
                 }
                 else
                 {
@@ -214,9 +223,17 @@ namespace TimeLapseCreator
             int minutes = vidLengthCalc.Minutes;
             var hours = (int)vidLengthCalc.TotalHours;
 
-            string durationString = $"{hours:D}:{minutes:D2}:{seconds:D2}.{milliseconds:D3}";
+            // Encode with H.264/MPEG-4 AVC) (.mp4-file extension)
+            outputParameters.Append($"-c:v:{framesId} libx264 -pix_fmt yuv420p ");
 
-            outputParameters.Append($"-c:v:{framesId} libx264 -pix_fmt yuv420p -to {durationString} {outPath} -y ");
+            // To encode with VP9 (.webm-file extension), try one of these.
+            // See more details on https://trac.ffmpeg.org/wiki/Encode/VP9
+            // outputParameters.Append($"-auto-alt-ref 0 -c:v:{framesId} libvpx-vp9 -crf 30 -b:v 0 ");
+            // outputParameters.Append($"-auto-alt-ref 0 -c:v:{framesId} libvpx-vp9 -crf 30 -b:v 2000k ");
+            // outputParameters.Append($"-auto-alt-ref 0 -c:v:{framesId} libvpx-vp9 -b:v 2M ");
+
+            string durationString = $"{hours:D}:{minutes:D2}:{seconds:D2}.{milliseconds:D3}";
+            outputParameters.Append($"-to {durationString} {outPath} -y ");
             
             string parameters = inputParameters.ToString() + outputParameters.ToString();
 
