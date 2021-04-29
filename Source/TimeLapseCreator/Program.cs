@@ -66,7 +66,7 @@ namespace TimeLapseCreator
             // Read the first video to setup the dimensions.
             int width, weight;
 
-            using (Image image = Image.Load(orgimages[0]))
+            using (Image image = await Image.LoadAsync(orgimages[0]))
             {
                 width = image.Width;
                 weight = image.Height;
@@ -344,7 +344,7 @@ namespace TimeLapseCreator
 
                     string fullFileName = Path.Combine(OriginalImagesPath, $@"{i:0000000}.png");
 
-                    await image.SaveAsync(fullFileName, new PngEncoder());
+                    await image.SaveAsPngAsync(fullFileName);
 
                     originalImages.Add(fullFileName);
                 }
@@ -390,7 +390,7 @@ namespace TimeLapseCreator
             IPen backgroundpen = Pens.Solid(Color.Blue, 1);
 
             // Creates a new image with empty pixel data. 
-            using (var image = Image.Load(inputPath))
+            using (var image = await Image.LoadAsync(inputPath))
             {
                 Rectangle rectangle = new Rectangle(4, 5, 139, 20);
 
@@ -421,7 +421,7 @@ namespace TimeLapseCreator
                     image.Mutate(x => x.DrawImage(fadedImage, fadeRatio));
                 }
 
-                await image.SaveAsync(outputPath, new PngEncoder()).ConfigureAwait(false);
+                await image.SaveAsPngAsync(outputPath).ConfigureAwait(false);
             }
         }
 
@@ -464,7 +464,7 @@ namespace TimeLapseCreator
                     string subtitle = SubTitle;
                     image.Mutate(x => x.DrawText(textOptions, subtitle, subtitlefont, fontColor, new PointF(0, height / 100 * 55)));
 
-                    await image.SaveAsync(thumbnailImagePath, new PngEncoder()).ConfigureAwait(false);
+                    await image.SaveAsPngAsync(thumbnailImagePath).ConfigureAwait(false);
                 }
             }
         }
@@ -507,7 +507,7 @@ namespace TimeLapseCreator
                     image.Mutate(x => x.DrawText(textOptions, subtitle, subtitlefont, fontColor, new PointF(0, height / 100 * 55)));
 
                     string fullname = Path.Combine(TitleFramesPath, @$"{i:000}.png");
-                    await image.SaveAsync(fullname, new PngEncoder());
+                    await image.SaveAsPngAsync(fullname);
                     titleFramesFileNames.Add(fullname);
                 }
             }
