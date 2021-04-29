@@ -189,7 +189,7 @@ namespace TimeLapseCreator
                 inputParameters.Append($"-i {audioPath} ");
                 outputParameters.Append($"-map {audioId} ");
 
-                if(audioFadeInDuration <= 0 && audioFadeOutDuration <= 0)
+                if (audioFadeInDuration <= 0 && audioFadeOutDuration <= 0)
                 {
                     // If no audio fading, just copy as it is.
                     outputParameters.Append($"-c:a copy ");
@@ -209,7 +209,7 @@ namespace TimeLapseCreator
                     if (audioFadeOutDuration > 0)
                     {
                         //Assume we fade out to last second.
-                        audioEffectList.Add($"afade=out:start_time={(vidLengthCalc.TotalSeconds - audioFadeOutDuration).ToString("0.000", NumberFormatInfo.InvariantInfo)}s:duration={audioFadeOutDuration.ToString("0.000", NumberFormatInfo.InvariantInfo)}s");
+                        audioEffectList.Add($"afade=out:start_time={(Math.Max(vidLengthCalc.TotalSeconds - audioFadeOutDuration, 0)).ToString("0.000", NumberFormatInfo.InvariantInfo)}s:duration={audioFadeOutDuration.ToString("0.000", NumberFormatInfo.InvariantInfo)}s");
                     }
 
                     string audioFilterString = string.Join(',', audioEffectList);
