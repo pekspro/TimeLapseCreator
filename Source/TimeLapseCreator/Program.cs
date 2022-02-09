@@ -38,7 +38,7 @@ namespace TimeLapseCreator
         private const string SubTitle = "Have a nice day";
 
         private FontCollection MyFontCollection = new FontCollection();
-        private FontFamily MyFontFamily = null;
+        private FontFamily MyFontFamily = default;
 
         public const int FramesPerSecond = 6;
 
@@ -52,7 +52,7 @@ namespace TimeLapseCreator
             Directory.CreateDirectory(AssetsPath);
             Directory.CreateDirectory(FFmpgPath);
 
-            MyFontFamily ??= MyFontCollection.Install(
+            MyFontFamily = MyFontCollection.Add(
                             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "verdana.ttf")
                         );
 
@@ -403,17 +403,14 @@ namespace TimeLapseCreator
                 ImageTimeStamp = ImageTimeStamp.AddMinutes(1);
 
                 Color fontColor = Color.White;
-                Font OverlayFont = MyFontFamily.CreateFont(14, FontStyle.Regular);
-                TextGraphicsOptions textoptions = new TextGraphicsOptions()
+                Font overlayFont = MyFontFamily.CreateFont(14, FontStyle.Regular);
+                TextOptions overlayOptions = new TextOptions(overlayFont)
                 {
-                    GraphicsOptions = new GraphicsOptions()
-                    {
-                        Antialias = true
-                    }
+                    Origin = new PointF(8, 7)
                 };
 
                 // Draw the text
-                image.Mutate(x => x.DrawText(textoptions, text, OverlayFont, fontColor, new PointF(8, 7)));
+                image.Mutate(x => x.DrawText(overlayOptions, text, fontColor));
 
                 // Fade in the other image
                 if (fadedImage != null && fadeRatio > 0)
@@ -440,29 +437,30 @@ namespace TimeLapseCreator
 
                     image.Mutate(x => x.Fill(Color.FromRgba(0, 0, 0, 204), rectangle));
 
-                    TextGraphicsOptions textOptions = new TextGraphicsOptions()
-                    {
-                        TextOptions = new TextOptions()
-                        {
-                            WrapTextWidth = width,
-                            HorizontalAlignment = HorizontalAlignment.Center
-                        },
-                        GraphicsOptions = new GraphicsOptions()
-                        {
-                            Antialias = true
-                        }
-                    };
-
                     Color fontColor = Color.White;
 
                     Font titlefont = MyFontFamily.CreateFont(height / 200.0f * 32, FontStyle.Regular);
                     string title = Title;
-                    image.Mutate(x => x.DrawText(textOptions, title, titlefont, fontColor, new PointF(0, height / 3)));
+                    TextOptions titleOptions = new TextOptions(titlefont)
+                    {
+                        WrappingLength = width,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Origin = new PointF(width / 2, height / 3),
+                        TextAlignment = TextAlignment.Center
+                    };
+                    image.Mutate(x => x.DrawText(titleOptions, title, fontColor));
 
 
                     Font subtitlefont = MyFontFamily.CreateFont(height / 200.0f * 20, FontStyle.Regular);
                     string subtitle = SubTitle;
-                    image.Mutate(x => x.DrawText(textOptions, subtitle, subtitlefont, fontColor, new PointF(0, height / 100 * 55)));
+                    TextOptions subtitleOptions = new TextOptions(subtitlefont)
+                    {
+                        WrappingLength = width,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Origin = new PointF(width / 2, height / 100 * 55),
+                        TextAlignment = TextAlignment.Center
+                    };
+                    image.Mutate(x => x.DrawText(subtitleOptions, subtitle, fontColor));
 
                     await image.SaveAsPngAsync(thumbnailImagePath).ConfigureAwait(false);
                 }
@@ -473,19 +471,6 @@ namespace TimeLapseCreator
         async Task<List<string>> CreateTitleScreenAsync(int width, int height)
         {
             List<string> titleFramesFileNames = new List<string>();
-
-            TextGraphicsOptions textOptions = new TextGraphicsOptions()
-            {
-                TextOptions = new TextOptions()
-                {
-                    WrapTextWidth = width,
-                    HorizontalAlignment = HorizontalAlignment.Center
-                },
-                GraphicsOptions = new GraphicsOptions()
-                {
-                    Antialias = true
-                }
-            };
 
             const int fadeFramesCount = FramesPerSecond;
 
@@ -499,12 +484,24 @@ namespace TimeLapseCreator
 
                     Font titlefont = MyFontFamily.CreateFont(height / 200.0f * 32, FontStyle.Regular);
                     string title = Title;
-                    image.Mutate(x => x.DrawText(textOptions, title, titlefont, fontColor, new PointF(0, height / 3)));
+                    TextOptions titlefontOptions = new TextOptions(titlefont)
+                    {
+                        Origin = new PointF(width / 2, height / 3),
+                        WrappingLength = width,
+                        HorizontalAlignment = HorizontalAlignment.Center                    
+                    };
+                    image.Mutate(x => x.DrawText(titlefontOptions, title, fontColor));
 
 
                     Font subtitlefont = MyFontFamily.CreateFont(height / 200.0f * 20, FontStyle.Regular);
                     string subtitle = SubTitle;
-                    image.Mutate(x => x.DrawText(textOptions, subtitle, subtitlefont, fontColor, new PointF(0, height / 100 * 55)));
+                    TextOptions subtitleFontOptions = new TextOptions(subtitlefont)
+                    {
+                        Origin = new PointF(width / 2, height / 100 * 55),
+                        WrappingLength = width,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    image.Mutate(x => x.DrawText(subtitleFontOptions, subtitle, fontColor));
 
                     string fullname = Path.Combine(TitleFramesPath, @$"{i:000}.png");
                     await image.SaveAsPngAsync(fullname);
